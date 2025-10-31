@@ -59,28 +59,63 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Get latest record
     const latestRecord = records[0];
 
-    // Calculate summary statistics
-    const totalHouseholdsWorked = latestRecord.metrics.Total_Households_Worked || 0;
-    const totalIndividualsWorked = latestRecord.metrics.Total_Individuals_Worked || 0;
-    const totalExpenditure = parseFloat(latestRecord.metrics.Total_Exp || '0');
-    const wagesPaid = parseFloat(latestRecord.metrics.Wages || '0');
-    const avgWageRate = parseFloat(
-      latestRecord.metrics.Average_Wage_rate_per_day_per_person || '0'
-    );
-    const avgDaysEmployment = parseFloat(
-      latestRecord.metrics.Average_days_of_employment_provided_per_Household || '0'
-    );
-    const completedWorks = latestRecord.metrics.Number_of_Completed_Works || 0;
-    const ongoingWorks = latestRecord.metrics.Number_of_Ongoing_Works || 0;
+    // Calculate summary statistics - handle multiple possible field names
+    const totalHouseholdsWorked = 
+      parseInt(latestRecord.metrics.Total_Households_Worked || 
+               latestRecord.metrics.total_households_worked ||
+               latestRecord.metrics['Total Households Worked'] || '0');
+    
+    const totalIndividualsWorked = 
+      parseInt(latestRecord.metrics.Total_Individuals_Worked || 
+               latestRecord.metrics.total_individuals_worked ||
+               latestRecord.metrics['Total Individuals Worked'] || '0');
+    
+    const totalExpenditure = 
+      parseFloat(latestRecord.metrics.Total_Exp || 
+                latestRecord.metrics.total_exp ||
+                latestRecord.metrics['Total Expenditure'] || '0');
+    
+    const wagesPaid = 
+      parseFloat(latestRecord.metrics.Wages || 
+                latestRecord.metrics.wages ||
+                latestRecord.metrics['Total Wages'] || '0');
+    
+    const avgWageRate = 
+      parseFloat(latestRecord.metrics.Average_Wage_rate_per_day_per_person || 
+                latestRecord.metrics.average_wage_rate ||
+                latestRecord.metrics['Average Wage Rate'] || '0');
+    
+    const avgDaysEmployment = 
+      parseFloat(latestRecord.metrics.Average_days_of_employment_provided_per_Household || 
+                latestRecord.metrics.average_days_employment ||
+                latestRecord.metrics['Average Days of Employment'] || '0');
+    
+    const completedWorks = 
+      parseInt(latestRecord.metrics.Number_of_Completed_Works || 
+               latestRecord.metrics.completed_works ||
+               latestRecord.metrics['Completed Works'] || '0');
+    
+    const ongoingWorks = 
+      parseInt(latestRecord.metrics.Number_of_Ongoing_Works || 
+               latestRecord.metrics.ongoing_works ||
+               latestRecord.metrics['Ongoing Works'] || '0');
 
     // Get last 12 months data for trends
     const last12Months = records.slice(0, 12).map((record) => ({
       month: record.month,
       fin_year: record.fin_year,
-      households_worked: record.metrics.Total_Households_Worked || 0,
-      individuals_worked: record.metrics.Total_Individuals_Worked || 0,
-      wages_paid: parseFloat(record.metrics.Wages || '0'),
-      persondays: record.metrics.Persondays_of_Central_Liability_so_far || 0,
+      households_worked: parseInt(record.metrics.Total_Households_Worked || 
+                                  record.metrics.total_households_worked ||
+                                  record.metrics['Total Households Worked'] || '0'),
+      individuals_worked: parseInt(record.metrics.Total_Individuals_Worked || 
+                                   record.metrics.total_individuals_worked ||
+                                   record.metrics['Total Individuals Worked'] || '0'),
+      wages_paid: parseFloat(record.metrics.Wages || 
+                            record.metrics.wages ||
+                            record.metrics['Total Wages'] || '0'),
+      persondays: parseInt(record.metrics.Persondays_of_Central_Liability_so_far || 
+                          record.metrics.persondays ||
+                          record.metrics['Person Days'] || '0'),
     }));
 
     const summary = {

@@ -152,12 +152,16 @@ export default function DistrictPage() {
     );
   }
 
-  const chartData = summary.trends.last_12_months.reverse().map((item) => ({
-    name: `${item.month?.substring(0, 3)} '${item.fin_year?.substring(5)}`,
-    households: item.households_worked,
-    wages: Math.round(item.wages_paid / 100000), // Convert to lakhs
-    workers: item.individuals_worked,
-  }));
+  const chartData = summary.trends.last_12_months.reverse().map((item) => {
+    // Extract year from fin_year (handles both "2024-2025" and "2024-25" formats)
+    const year = item.fin_year?.split('-')[0]?.substring(2) || '';
+    return {
+      name: `${item.month?.substring(0, 3)} '${year}`,
+      households: item.households_worked,
+      wages: Math.round(item.wages_paid), // Already in lakhs, just round
+      workers: item.individuals_worked,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
